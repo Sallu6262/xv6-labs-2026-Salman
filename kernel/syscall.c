@@ -102,6 +102,7 @@ extern uint64 sys_unlink(void);
 extern uint64 sys_link(void);
 extern uint64 sys_mkdir(void);
 extern uint64 sys_close(void);
+extern uint64 sys_interpose(void);
 extern uint64 sys_sync(void);
 
 // An array mapping syscall numbers from syscall.h
@@ -112,6 +113,7 @@ static uint64 (*syscalls[])(void) = {
   [SYS_exit]    = sys_exit,
   [SYS_wait]    = sys_wait,
   [SYS_pipe]    = sys_pipe,
+  [SYS_interpose] = sys_interpose,
   [SYS_read]    = sys_read,
   [SYS_kill]    = sys_kill,
   [SYS_exec]    = sys_exec,
@@ -141,7 +143,24 @@ syscall(void)
 
   num = p->trapframe->a7;
   if (num > 0 && num < NELEM(syscalls) && syscalls[num]) {
-    // Use num to lookup the system call function for num, call it,
+    // Check whether this syscall is blocked
+    if (p->syscall_mask & (1 << num)) {
+
+  if (num == SYS_open || num == SYS_exec) {
+    char path[MAXPATH];
+
+    if (argstr(0, path, MAXPATH) < 0 ||
+        strncmp(path, p->allowed_path, MAXPATH) != 0) {
+      p->trapframe->a0 = -1;
+      return;
+    }
+
+  } else {
+    p->trapframe->a0 = -1;
+    return;
+  }
+ }
+    // Use num to lookup the system call function for num, call it, done already
     // and store its return value in p->trapframe->a0
     p->trapframe->a0 = syscalls[num]();
   } else {

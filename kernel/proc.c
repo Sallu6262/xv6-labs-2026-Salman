@@ -274,7 +274,9 @@ kfork(void)
     return -1;
   }
   np->sz = p->sz;
-
+// child inherits parent's syscall restrictions
+  np->syscall_mask = p->syscall_mask;
+  safestrcpy(np->allowed_path, p->allowed_path, sizeof(np->allowed_path));
   // copy saved user registers.
   *(np->trapframe) = *(p->trapframe);
 

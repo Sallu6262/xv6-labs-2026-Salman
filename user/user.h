@@ -11,6 +11,7 @@ int write(int, const void *, int);
 int read(int, void *, int);
 int close(int);
 int kill(int);
+int interpose(int, char *);
 int exec(const char *, char **);
 int open(const char *, int);
 int mknod(const char *, short, short);

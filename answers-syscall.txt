@@ -1,0 +1,11 @@
+1. usertrap() in kernel/trap.c called syscall(), as shown by the GDB backtrace.
+
+2. p->trapframe->a7 = 0xf (15), which represents SYS_open. Register a7 holds the system call number.
+
+3. The previous CPU privilege mode was User Mode (U-mode), because sstatus = 0x200000022 and bit SPP (bit 8) is 0.
+
+4. The faulting assembly instruction was lw a3,0(zero) at 0x80001d6e. The register corresponding to num was a3.
+
+5. The kernel crashed because num = *(int *)0 attempted to read from unmapped address 0x0. This caused a load page fault (scause = 0xd, stval = 0x0).
+
+6. The running process was init, with PID 1.

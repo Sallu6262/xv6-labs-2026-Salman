@@ -110,3 +110,26 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+uint64
+sys_interpose(void)
+{
+  int mask;
+  char path[MAXPATH];
+  struct proc *p = myproc();
+
+  argint(0, &mask);
+
+  if (argstr(1, path, MAXPATH) < 0)
+    return -1;
+
+  // Only establish the allowed path when restrictions
+  // are being applied for the first time.
+  if (p->syscall_mask == 0 && mask != 0)
+    safestrcpy(p->allowed_path, path, MAXPATH);
+
+  // Restrictions can only be added, not removed.
+  p->syscall_mask |= mask;
+
+  return 0;
+}
