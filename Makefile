@@ -206,7 +206,7 @@ UPROGS=\
     $U/_sleep\
 	$U/_sixfive\
 	$U/_find\
-
+    $U/_memdump\
 
 ifeq ($(LAB),syscall)
 UPROGS += \
@@ -278,14 +278,21 @@ UPROGS += \
 	$U/_nettest
 endif
 
+# UEXTRA=
+# ifeq ($(LAB),util)
+# 	UEXTRA += user/findtest.sh
+# 	UEXTRA += user/sixfive.txt
+# 	UPROGS += $U/_memdump
+# endif
+# ifeq ($(LAB),syscall)
+# 	UEXTRA += user/exec.sh
+# endif
 UEXTRA=
-ifeq ($(LAB),util)
-	UEXTRA += user/findtest.sh
-	UEXTRA += user/sixfive.txt
-	UPROGS += $U/_memdump
-endif
+UEXTRA += user/findtest.sh
+UEXTRA += user/sixfive.txt
+
 ifeq ($(LAB),syscall)
-	UEXTRA += user/exec.sh
+  UEXTRA += user/exec.sh
 endif
 
 fs.img: mkfs/mkfs README $(UEXTRA) $(UPROGS)
